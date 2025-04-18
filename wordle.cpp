@@ -41,8 +41,20 @@ void wordleHelper(
     unsigned int index
 ) {
     if (index == word.length()) {
-        for (char c : floating) {
-            if (word.find(c) == std::string::npos) {
+        for (char f : floating) {
+            int count = 0;
+            for (char c : word) {
+                if (c == f) {
+                    count++;
+                }
+            }
+            int floatingCount = 0;
+            for (char f2 : floating) {
+                if (f2 == f) {
+                    floatingCount++;
+                }
+            }
+            if (count < floatingCount) {
                 return;
             }
         }
