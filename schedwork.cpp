@@ -25,17 +25,9 @@ bool scheduleHelper(
     const size_t dailyNeed,
     const size_t maxShifts,
     DailySchedule& sched,
+    vector<int>& workerShiftCount,
     unsigned int day,
     unsigned int shift
-);
-
-bool isValid(
-    const AvailabilityMatrix& avail,
-    const size_t dailyNeed,
-    const size_t maxShifts,
-    DailySchedule& sched,
-    unsigned int day,
-    Worker_T worker
 );
 
 // Add your implementation of schedule() and other helper functions here
@@ -59,7 +51,9 @@ bool schedule(
         sched.push_back(day);
     }
 
-    return scheduleHelper(avail, dailyNeed, maxShifts, sched, 0, 0);
+    vector<int> workerShiftCount(avail[0].size(), 0);
+
+    return scheduleHelper(avail, dailyNeed, maxShifts, sched, workerShiftCount, 0, 0);
 }
 
 bool scheduleHelper(
@@ -67,6 +61,7 @@ bool scheduleHelper(
     const size_t dailyNeed,
     const size_t maxShifts,
     DailySchedule& sched,
+    vector<int>& workerShiftCount,
     unsigned int day,
     unsigned int shift
 ) {
@@ -77,53 +72,28 @@ bool scheduleHelper(
 
     // move to next day
     if (shift == dailyNeed) {
-        return scheduleHelper(avail, dailyNeed, maxShifts, sched, day + 1, 0);
+        return scheduleHelper(avail, dailyNeed, maxShifts, sched, workerShiftCount, day + 1, 0);
     }
 
     if (sched[day][shift] == INVALID_ID) {
         for (Worker_T worker = 0; worker < avail[day].size(); worker++) {
-            sched[day][shift] = worker;
-            if (isValid(avail, dailyNeed, maxShifts, sched, day, worker)) {
-                if (scheduleHelper(avail, dailyNeed, maxShifts, sched, day, shift + 1)) {
+            // check if worker is valid
+            if (avail[day][worker] == 1 &&
+                workerShiftCount[worker] < maxShifts &&
+                find(sched[day].begin(), sched[day].end(), worker) == sched[day].end()
+            ) {
+                sched[day][shift] = worker;
+                workerShiftCount[worker]++;
+                
+                if (scheduleHelper(avail, dailyNeed, maxShifts, sched, workerShiftCount, day, shift + 1)) {
                     return true;
                 }
+                
+                // backtrack
+                workerShiftCount[worker]--;
+                sched[day][shift] = INVALID_ID;
             }
         }
-        // backtrack
-        sched[day][shift] = INVALID_ID;
-    } else {
-        return scheduleHelper(avail, dailyNeed, maxShifts, sched, day, shift + 1);
     }
-
     return false;
-}
-
-bool isValid(
-    const AvailabilityMatrix& avail,
-    const size_t dailyNeed,
-    const size_t maxShifts,
-    DailySchedule& sched,
-    unsigned int day,
-    Worker_T worker
-) {
-    if (avail[day][worker] == 0) {
-        return false;
-    }
-
-    size_t shiftCount = 0;
-
-    for (unsigned int i = 0; i < sched.size(); i++) {
-        size_t dailyShiftCount = 0;
-        for (unsigned int j = 0; j < dailyNeed; j++) {
-            if (sched[i][j] == worker) {
-                shiftCount++;
-                dailyShiftCount++;
-            }
-        }
-        if (dailyShiftCount > 1) {
-            return false;
-        }
-    }
-    
-    return shiftCount <= maxShifts;
 }

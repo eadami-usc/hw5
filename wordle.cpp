@@ -13,7 +13,7 @@ using namespace std;
 
 // Add prototypes of helper functions here
 void wordleHelper(
-    const std::string& floating,
+    std::string floating,
     const std::set<std::string>& dict,
     std::set<std::string>& words,
     std::string& word,
@@ -34,31 +34,14 @@ std::set<std::string> wordle(
 
 // Define any helper functions here
 void wordleHelper(
-    const std::string& floating,
+    std::string floating,
     const std::set<std::string>& dict,
     std::set<std::string>& words,
     std::string& word,
     unsigned int index
 ) {
     if (index == word.length()) {
-        for (char f : floating) {
-            int count = 0;
-            for (char c : word) {
-                if (c == f) {
-                    count++;
-                }
-            }
-            int floatingCount = 0;
-            for (char f2 : floating) {
-                if (f2 == f) {
-                    floatingCount++;
-                }
-            }
-            if (count < floatingCount) {
-                return;
-            }
-        }
-        if (dict.find(word) != dict.end()) {
+        if (floating.empty() && dict.find(word) != dict.end()) {
             words.insert(word);
         }
         return;
@@ -67,7 +50,13 @@ void wordleHelper(
     if (word[index] == '-') {
         for (char c = 'a'; c <= 'z'; c++) {
             word[index] = c;
-            wordleHelper(floating, dict, words, word, index + 1);
+            if (floating.find(c) != std::string::npos) {
+                std::string newFloating = floating;
+                newFloating.erase(newFloating.find(c), 1);
+                wordleHelper(newFloating, dict, words, word, index + 1);
+            } else {
+                wordleHelper(floating, dict, words, word, index + 1);
+            }
         }
         word[index] = '-';
     } else {
