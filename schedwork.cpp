@@ -25,7 +25,7 @@ bool scheduleHelper(
     const size_t dailyNeed,
     const size_t maxShifts,
     DailySchedule& sched,
-    vector<int>& workerShiftCount,
+    vector<size_t>& workerShiftCount,
     unsigned int day,
     unsigned int shift
 );
