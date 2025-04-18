@@ -51,7 +51,7 @@ bool schedule(
         sched.push_back(day);
     }
 
-    vector<int> workerShiftCount(avail[0].size(), 0);
+    vector<size_t> workerShiftCount(avail[0].size(), 0);
 
     return scheduleHelper(avail, dailyNeed, maxShifts, sched, workerShiftCount, 0, 0);
 }
@@ -61,7 +61,7 @@ bool scheduleHelper(
     const size_t dailyNeed,
     const size_t maxShifts,
     DailySchedule& sched,
-    vector<int>& workerShiftCount,
+    vector<size_t>& workerShiftCount,
     unsigned int day,
     unsigned int shift
 ) {
